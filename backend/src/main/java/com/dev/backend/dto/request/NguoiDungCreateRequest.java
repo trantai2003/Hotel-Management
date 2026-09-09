@@ -13,7 +13,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCreateRequest {
+public class NguoiDungCreateRequest {
     private String name;
     private String email;
     private String password;

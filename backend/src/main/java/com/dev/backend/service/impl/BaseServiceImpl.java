@@ -1,4 +1,4 @@
-package com.dev.backend.services.impl;
+package com.dev.backend.service.impl;
 
 import com.dev.backend.constant.enums.FilterLogicType;
 import com.dev.backend.constant.enums.SortDirection;
