@@ -20,20 +20,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth", description = "Đăng ký / đăng nhập")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
-    @Operation(summary = "Đăng ký tài khoản khách hàng")
     public ResponseEntity<BaseResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
         BaseResponse<AuthResponse> data = authService.register(request);
         return ResponseEntity.ok(data);
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Đăng nhập tài khoản")
     public ResponseEntity<BaseResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         BaseResponse<LoginResponse> loginResponse = authService.login(request);
         return ResponseEntity.ok(loginResponse);
