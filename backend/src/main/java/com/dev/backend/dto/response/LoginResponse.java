@@ -1,7 +1,6 @@
 package com.dev.backend.dto.response;
 
 import com.dev.backend.entity.HoSoKhach;
-import com.dev.backend.entity.VaiTro;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

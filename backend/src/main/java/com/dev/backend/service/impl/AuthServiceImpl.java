@@ -6,7 +6,6 @@ import com.dev.backend.dto.request.RegisterRequest;
 import com.dev.backend.dto.response.AuthResponse;
 import com.dev.backend.dto.response.BaseResponse;
 import com.dev.backend.dto.response.LoginResponse;
-import com.dev.backend.dto.response.NguoiDungResponse;
 import com.dev.backend.entity.NguoiDung;
 import com.dev.backend.entity.VaiTro;
 import com.dev.backend.exception.customize.CommonException;

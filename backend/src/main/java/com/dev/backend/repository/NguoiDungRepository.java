@@ -16,7 +16,6 @@ import java.util.Optional;
 public interface NguoiDungRepository extends JpaRepository<NguoiDung, String>,
         JpaSpecificationExecutor<NguoiDung> {
 
-    // Spring Data tự sinh câu SQL từ tên hàm: SELECT ... WHERE email = ?
     Optional<NguoiDung> findByEmail(String email);
 
     boolean existsByEmail(String email);
