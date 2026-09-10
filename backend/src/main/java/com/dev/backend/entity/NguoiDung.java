@@ -1,47 +1,33 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "nguoi_dung",
-        uniqueConstraints = @UniqueConstraint(name = "uq_nguoi_dung_email", columnNames = "email"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class NguoiDung extends AuditableEntity {
-
-    @Column(name = "email", length = 190, nullable = false)
+@Table(name = "nguoi_dung")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class NguoiDung extends BaseEntity {
+    @Column(nullable = false, length = 190, unique = true)
     private String email;
 
-    @Column(name = "password_hash", length = 255, nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "full_name", length = 150, nullable = false)
+    @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
-    @Column(name = "phone", length = 20)
+    @Column(length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private UserStatus status = UserStatus.PENDING_VERIFICATION;
 
@@ -57,14 +43,22 @@ public class NguoiDung extends AuditableEntity {
     @Column(name = "anonymized_at")
     private LocalDateTime anonymizedAt;
 
-    @OneToOne(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    /** nguoi_dung_vai_tro: cột assigned_at do DB tự điền DEFAULT. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "nguoi_dung_vai_tro",
+            joinColumns = @JoinColumn(name = "nguoi_dung_id"),
+            inverseJoinColumns = @JoinColumn(name = "vai_tro_id"))
+    @Builder.Default
+    private Set<VaiTro> roles = new HashSet<>();
+
+    @OneToOne(mappedBy = "nguoiDung", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private HoSoKhach hoSoKhach;
-
-    @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<NguoiDungVaiTro> vaiTros = new ArrayList<>();
-
-    @OneToMany(mappedBy = "nguoiDung", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<DongYDuLieu> dongYDuLieus = new ArrayList<>();
 }

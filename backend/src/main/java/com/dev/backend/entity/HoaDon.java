@@ -1,39 +1,22 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "hoa_don",
-        uniqueConstraints = @UniqueConstraint(name = "uq_hoa_don_number", columnNames = "invoice_number"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "hoa_don")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class HoaDon extends BaseEntity {
-
-    @Column(name = "invoice_number", length = 30, nullable = false)
+    @Column(name = "invoice_number", nullable = false, length = 30, unique = true)
     private String invoiceNumber;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "so_khach_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_hd_so_khach"))
+    @JoinColumn(name = "so_khach_id", nullable = false)
     private SoKhach soKhach;
 
     @Column(name = "room_subtotal", nullable = false, precision = 15, scale = 2)
@@ -73,7 +56,7 @@ public class HoaDon extends BaseEntity {
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 10)
+    @Column(nullable = false, length = 10)
     @Builder.Default
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
@@ -84,10 +67,11 @@ public class HoaDon extends BaseEntity {
     private LocalDateTime paidAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "issued_by", foreignKey = @ForeignKey(name = "fk_hd_issued_by"))
+    @JoinColumn(name = "issued_by")
     private NguoiDung issuedBy;
 
-    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
     @Builder.Default
-    private List<ChiTietHoaDon> chiTiets = new ArrayList<>();
+    private List<ChiTietHoaDon> lines = new ArrayList<>();
 }

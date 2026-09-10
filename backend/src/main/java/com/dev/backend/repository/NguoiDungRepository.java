@@ -1,22 +1,22 @@
 package com.dev.backend.repository;
 
 import com.dev.backend.entity.NguoiDung;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * JpaRepository            : có sẵn save / findById / findAll / delete...
+ * JpaSpecificationExecutor : bắt buộc, vì BaseServiceImpl dùng để filter.
+ * ID là String vì cột id của DB là CHAR(36) UUID.
+ */
 @Repository
-public interface NguoiDungRepository
-        extends JpaRepository<NguoiDung, String>, JpaSpecificationExecutor<NguoiDung> {
+public interface NguoiDungRepository extends JpaRepository<NguoiDung, String>,
+        JpaSpecificationExecutor<NguoiDung> {
 
-    /**
-     * Nap kem vai tro trong cung mot truy van.
-     * Thieu @EntityGraph se dinh LazyInitializationException khi build UserDetails.
-     */
-    @EntityGraph(attributePaths = {"vaiTros", "vaiTros.vaiTro"})
+    // Spring Data tự sinh câu SQL từ tên hàm: SELECT ... WHERE email = ?
     Optional<NguoiDung> findByEmail(String email);
 
     boolean existsByEmail(String email);

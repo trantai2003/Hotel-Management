@@ -1,58 +1,43 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.OrderStatus;
+import com.dev.backend.constant.enums.OrderType;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.io.Serializable;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "don_mon",
-        uniqueConstraints = @UniqueConstraint(name = "uq_don_mon_code", columnNames = "order_code"),
-        indexes = {
-                @Index(name = "ix_don_mon_kitchen", columnList = "status, ordered_at"),
-                @Index(name = "ix_don_mon_dat_phong", columnList = "dat_phong_id")
-        })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "don_mon")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DonMon extends BaseEntity {
-
-    @Column(name = "order_code", length = 20, nullable = false)
+    @Column(name = "order_code", nullable = false, length = 20, unique = true)
     private String orderCode;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", nullable = false, length = 20)
     private OrderType orderType;
 
+    /** Bắt buộc khi chargeToRoom = true. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dat_phong_id", foreignKey = @ForeignKey(name = "fk_dm_dat_phong"))
+    @JoinColumn(name = "dat_phong_id")
     private DatPhong datPhong;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ban_an_id", foreignKey = @ForeignKey(name = "fk_dm_ban_an"))
+    @JoinColumn(name = "ban_an_id")
     private BanAn banAn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nguoi_dung_id", foreignKey = @ForeignKey(name = "fk_dm_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
@@ -64,25 +49,26 @@ public class DonMon extends BaseEntity {
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    @Column(name = "note", length = 300)
+    @Column(length = 300)
     private String note;
 
-    @Column(name = "ordered_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime orderedAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(name = "ordered_at", nullable = false, updatable = false)
+    private LocalDateTime orderedAt;
 
     @Column(name = "served_at")
     private LocalDateTime servedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "handled_by", foreignKey = @ForeignKey(name = "fk_dm_handled_by"))
+    @JoinColumn(name = "handled_by")
     private NguoiDung handledBy;
 
-    @OneToMany(mappedBy = "donMon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "donMon", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ChiTietDonMon> chiTiets = new ArrayList<>();
+    private List<ChiTietDonMon> items = new ArrayList<>();
 
-    @OneToMany(mappedBy = "donMon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "donMon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("changedAt ASC")
     @Builder.Default
-    private List<LichSuTrangThaiDon> lichSuTrangThais = new ArrayList<>();
+    private List<LichSuTrangThaiDon> statusHistory = new ArrayList<>();
 }

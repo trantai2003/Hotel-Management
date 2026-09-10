@@ -1,5 +1,7 @@
 package com.dev.backend.exception;
 
+import com.dev.backend.dto.response.BaseResponse;
+import com.dev.backend.exception.customize.CommonException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -53,5 +55,26 @@ public class GlobalExceptionHandler {
             map.put("errors", details);
         }
         return map;
+    }
+
+    @ExceptionHandler(CommonException.class)
+    public ResponseEntity<BaseResponse<Object>> handleCommon(CommonException ex) {
+        HttpStatus status = ex.getHttpStatus() != null ? ex.getHttpStatus() : HttpStatus.BAD_REQUEST;
+        BaseResponse<Object> body = BaseResponse.builder()
+                .code(status.value())
+                .msg(ex.getMessage())
+                .data(ex.getData())
+                .build();
+        return ResponseEntity.status(status).body(body);
+    }
+
+    /** Lỗi không lường trước -> 500, không lộ stack trace cho client. */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<Object>> handleOther(Exception ex) {
+        BaseResponse<Object> body = BaseResponse.builder()
+                .code(500)
+                .msg("Lỗi hệ thống: " + ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

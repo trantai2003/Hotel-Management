@@ -1,45 +1,29 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.LineGroup;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
 
-import java.io.Serializable;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
 
 @Entity
 @Table(name = "chi_tiet_hoa_don")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ChiTietHoaDon extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hoa_don_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_cthd_hoa_don"))
+    @JoinColumn(name = "hoa_don_id", nullable = false)
     private HoaDon hoaDon;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "line_group", nullable = false, length = 10)
-    private InvoiceLineGroup lineGroup;
+    private LineGroup lineGroup;
 
-    @Column(name = "description", length = 255, nullable = false)
+    @Column(nullable = false, length = 255)
     private String description;
 
-    @Column(name = "quantity", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     @Builder.Default
     private BigDecimal quantity = BigDecimal.ONE;
 

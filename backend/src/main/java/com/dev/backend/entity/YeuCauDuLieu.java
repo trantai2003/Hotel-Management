@@ -1,35 +1,19 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.DataRequestStatus;
+import com.dev.backend.constant.enums.DataRequestType;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "yeu_cau_du_lieu")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class YeuCauDuLieu extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "nguoi_dung_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_ycdl_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id", nullable = false)
     private NguoiDung nguoiDung;
 
     @Enumerated(EnumType.STRING)
@@ -37,21 +21,21 @@ public class YeuCauDuLieu extends BaseEntity {
     private DataRequestType requestType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private DataRequestStatus status = DataRequestStatus.RECEIVED;
 
-    @Column(name = "reason", length = 500)
+    @Column(length = 500)
     private String reason;
 
-    @Column(name = "requested_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime requestedAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(name = "requested_at", nullable = false, updatable = false)
+    private LocalDateTime requestedAt;
 
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "processed_by", foreignKey = @ForeignKey(name = "fk_ycdl_processed_by"))
+    @JoinColumn(name = "processed_by")
     private NguoiDung processedBy;
 }

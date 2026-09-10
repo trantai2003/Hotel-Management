@@ -15,7 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    /** id cua NguoiDung la CHAR(36) UUID -> String, khong phai java.util.UUID. */
+    /**
+     * id cua NguoiDung la CHAR(36) UUID -> String, khong phai java.util.UUID.
+     */
     private final String id;
     private final String email;
     private final String password;
@@ -29,9 +31,8 @@ public class CustomUserDetails implements UserDetails {
      * neu khong se dinh LazyInitializationException.
      */
     public static CustomUserDetails build(NguoiDung nguoiDung) {
-        List<GrantedAuthority> authorities = nguoiDung.getVaiTros().stream()
-                .map(ndvt -> ndvt.getVaiTro().getCode())
-                .map(code -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + code))
+        List<GrantedAuthority> authorities = nguoiDung.getRoles().stream()
+                .map(vaiTro -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + vaiTro.getCode()))
                 .toList();
 
         return new CustomUserDetails(
@@ -73,7 +74,9 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    /** Chi tai khoan da xac thuc email moi duoc dang nhap. */
+    /**
+     * Chi tai khoan da xac thuc email moi duoc dang nhap.
+     */
     @Override
     public boolean isEnabled() {
         return status == UserStatus.ACTIVE;

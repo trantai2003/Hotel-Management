@@ -1,45 +1,28 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "tour",
-        uniqueConstraints = @UniqueConstraint(name = "uq_tour_code", columnNames = "code"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class Tour extends AuditableEntity {
-
-    @Column(name = "code", length = 20, nullable = false)
+@Table(name = "tour")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Tour extends BaseEntity {
+    @Column(nullable = false, length = 20, unique = true)
     private String code;
 
-    @Column(name = "name", length = 180, nullable = false)
+    @Column(nullable = false, length = 180)
     private String name;
 
-    @Lob
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Lob
-    @Column(name = "itinerary", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String itinerary;
 
     @Column(name = "duration_hours", nullable = false, precision = 5, scale = 2)
@@ -55,33 +38,39 @@ public class Tour extends AuditableEntity {
     @Column(name = "meeting_point", length = 255)
     private String meetingPoint;
 
-    @Column(name = "latitude", precision = 10, scale = 7)
+    @Column(precision = 10, scale = 7)
     private BigDecimal latitude;
 
-    @Column(name = "longitude", precision = 10, scale = 7)
+    @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    @Lob
-    @Column(name = "safety_warning", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "safety_warning", nullable = false, columnDefinition = "TEXT")
     private String safetyWarning;
 
-    @Lob
-    @Column(name = "insurance_info", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "insurance_info", nullable = false, columnDefinition = "TEXT")
     private String insuranceInfo;
 
-    @Lob
-    @Column(name = "refund_policy", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "refund_policy", nullable = false, columnDefinition = "TEXT")
     private String refundPolicy;
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<AnhTour> anhs = new ArrayList<>();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
     @Builder.Default
-    private List<LichKhoiHanhTour> lichKhoiHanhs = new ArrayList<>();
+    private List<AnhTour> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tour")
+    @Builder.Default
+    private List<LichKhoiHanhTour> departures = new ArrayList<>();
 }

@@ -1,41 +1,27 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.HousekeepingStatus;
+import com.dev.backend.constant.enums.OccupancyStatus;
+import com.dev.backend.constant.enums.ServiceStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "phong",
-        uniqueConstraints = @UniqueConstraint(name = "uq_phong_number", columnNames = "room_number"),
-        indexes = @Index(name = "ix_phong_hang_trang_thai",
-                columnList = "hang_phong_id, occupancy_status, housekeeping_status"))
+@Table(name = "phong")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 public class Phong extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hang_phong_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_phong_hang_phong"))
+    @JoinColumn(name = "hang_phong_id", nullable = false)
     private HangPhong hangPhong;
 
-    @Column(name = "room_number", length = 10, nullable = false)
+    @Column(name = "room_number", nullable = false, length = 10, unique = true)
     private String roomNumber;
 
     @Column(name = "floor_no", nullable = false)
@@ -54,17 +40,12 @@ public class Phong extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "service_status", nullable = false, length = 20)
     @Builder.Default
-    private RoomServiceStatus serviceStatus = RoomServiceStatus.IN_SERVICE;
+    private ServiceStatus serviceStatus = ServiceStatus.IN_SERVICE;
 
-    @Column(name = "note", length = 255)
+    @Column(length = 255)
     private String note;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    @PreUpdate
-    void touch() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

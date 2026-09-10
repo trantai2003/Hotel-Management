@@ -1,52 +1,34 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.ConsentType;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
 
 @Entity
-@Table(name = "dong_y_du_lieu",
-        indexes = @Index(name = "ix_dong_y_nguoi_dung", columnList = "nguoi_dung_id, consent_type"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "dong_y_du_lieu")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DongYDuLieu extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "nguoi_dung_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_dydl_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id", nullable = false)
     private NguoiDung nguoiDung;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "consent_type", nullable = false, length = 30)
     private ConsentType consentType;
 
-    @Column(name = "policy_version", length = 20, nullable = false)
+    @Column(name = "policy_version", nullable = false, length = 20)
     private String policyVersion;
 
-    @Column(name = "granted", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Boolean granted = true;
 
-    @Column(name = "granted_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime grantedAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(name = "granted_at", nullable = false, updatable = false)
+    private LocalDateTime grantedAt;
 
     @Column(name = "revoked_at")
     private LocalDateTime revokedAt;

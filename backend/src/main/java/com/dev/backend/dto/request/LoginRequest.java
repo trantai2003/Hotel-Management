@@ -1,14 +1,15 @@
 package com.dev.backend.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class LoginRequest {
-
-    @NotBlank(message = "Email không được để trống")
-    private String email;
-
-    @NotBlank(message = "Mật khẩu không được để trống")
-    private String password;
+    String email;
+    String password;
 }

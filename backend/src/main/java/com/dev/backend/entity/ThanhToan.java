@@ -1,35 +1,22 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.PaymentMethod;
+import com.dev.backend.constant.enums.PaymentScope;
+import com.dev.backend.constant.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.io.Serializable;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
 
 @Entity
-@Table(name = "thanh_toan",
-        uniqueConstraints = @UniqueConstraint(name = "uq_thanh_toan_code", columnNames = "payment_code"),
-        indexes = @Index(name = "ix_thanh_toan_gateway", columnList = "gateway_txn_id"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "thanh_toan")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ThanhToan extends BaseEntity {
-
-    @Column(name = "payment_code", length = 30, nullable = false)
+    @Column(name = "payment_code", nullable = false, length = 30, unique = true)
     private String paymentCode;
 
     @Enumerated(EnumType.STRING)
@@ -37,52 +24,52 @@ public class ThanhToan extends BaseEntity {
     private PaymentScope paymentScope;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dat_phong_id", foreignKey = @ForeignKey(name = "fk_tt_dat_phong"))
+    @JoinColumn(name = "dat_phong_id")
     private DatPhong datPhong;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hoa_don_id", foreignKey = @ForeignKey(name = "fk_tt_hoa_don"))
+    @JoinColumn(name = "hoa_don_id")
     private HoaDon hoaDon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dat_tour_id", foreignKey = @ForeignKey(name = "fk_tt_dat_tour"))
+    @JoinColumn(name = "dat_tour_id")
     private DatTour datTour;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "don_mon_id", foreignKey = @ForeignKey(name = "fk_tt_don_mon"))
+    @JoinColumn(name = "don_mon_id")
     private DonMon donMon;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "method", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private PaymentMethod method;
 
-    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "currency", length = 3, nullable = false)
+    @Column(nullable = false, length = 3)
     @Builder.Default
     private String currency = "VND";
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private PaymentStatus status = PaymentStatus.INITIATED;
 
     @Column(name = "gateway_txn_id", length = 100)
     private String gatewayTxnId;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "gateway_response", columnDefinition = "json")
+    @Column(name = "gateway_response", columnDefinition = "JSON")
     private String gatewayResponse;
 
+    /** Hoàn tiền: trỏ tới giao dịch gốc. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "refund_of_id", foreignKey = @ForeignKey(name = "fk_tt_refund_of"))
+    @JoinColumn(name = "refund_of_id")
     private ThanhToan refundOf;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }

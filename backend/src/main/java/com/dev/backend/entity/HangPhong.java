@@ -1,41 +1,26 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "hang_phong",
-        uniqueConstraints = @UniqueConstraint(name = "uq_hang_phong_code", columnNames = "code"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class HangPhong extends AuditableEntity {
-
-    @Column(name = "code", length = 20, nullable = false)
+@Table(name = "hang_phong")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class HangPhong extends BaseEntity {
+    @Column(nullable = false, length = 20, unique = true)
     private String code;
 
-    @Column(name = "name", length = 120, nullable = false)
+    @Column(nullable = false, length = 120)
     private String name;
 
-    @Lob
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "base_price", nullable = false, precision = 15, scale = 2)
@@ -55,19 +40,28 @@ public class HangPhong extends AuditableEntity {
     @Column(name = "area_sqm", precision = 6, scale = 2)
     private BigDecimal areaSqm;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "amenities", columnDefinition = "json")
+    /** JSON — parse ở tầng service (hoặc dùng @JdbcTypeCode(SqlTypes.JSON) với Hibernate 6). */
+    @Column(columnDefinition = "JSON")
     private String amenities;
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "hangPhong", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<AnhHangPhong> anhs = new ArrayList<>();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "hangPhong", fetch = FetchType.LAZY)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "hangPhong", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
     @Builder.Default
-    private List<Phong> phongs = new ArrayList<>();
+    private List<AnhHangPhong> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "hangPhong")
+    @Builder.Default
+    private List<Phong> rooms = new ArrayList<>();
 }

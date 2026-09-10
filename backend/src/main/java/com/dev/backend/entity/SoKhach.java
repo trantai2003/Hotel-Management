@@ -1,57 +1,41 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.OpenClosedStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "so_khach",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uq_so_khach_number", columnNames = "folio_number"),
-                @UniqueConstraint(name = "uq_so_khach_dat_phong", columnNames = "dat_phong_id")
-        })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "so_khach")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class SoKhach extends BaseEntity {
-
-    @Column(name = "folio_number", length = 20, nullable = false)
+    @Column(name = "folio_number", nullable = false, length = 20, unique = true)
     private String folioNumber;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "dat_phong_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_sk_dat_phong"))
+    @JoinColumn(name = "dat_phong_id", nullable = false, unique = true)
     private DatPhong datPhong;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 10)
+    @Column(nullable = false, length = 10)
     @Builder.Default
-    private FolioStatus status = FolioStatus.OPEN;
+    private OpenClosedStatus status = OpenClosedStatus.OPEN;
 
-    @Column(name = "opened_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime openedAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(name = "opened_at", nullable = false, updatable = false)
+    private LocalDateTime openedAt;
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @OneToMany(mappedBy = "soKhach", fetch = FetchType.LAZY)
+    /** Append-only: chỉ thêm, không sửa/xóa (DB có trigger chặn). */
+    @OneToMany(mappedBy = "soKhach", cascade = CascadeType.PERSIST)
+    @OrderBy("postedAt ASC")
     @Builder.Default
-    private List<GiaoDichSoKhach> giaoDichs = new ArrayList<>();
+    private List<GiaoDichSoKhach> transactions = new ArrayList<>();
 }

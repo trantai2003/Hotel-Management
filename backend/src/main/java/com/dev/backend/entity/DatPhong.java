@@ -1,46 +1,30 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "dat_phong",
-        uniqueConstraints = @UniqueConstraint(name = "uq_dat_phong_code", columnNames = "booking_code"),
-        indexes = {
-                @Index(name = "ix_dat_phong_arrival", columnList = "check_in_date, status"),
-                @Index(name = "ix_dat_phong_departure", columnList = "check_out_date, status"),
-                @Index(name = "ix_dat_phong_nguoi_dung", columnList = "nguoi_dung_id")
-        })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class DatPhong extends AuditableEntity {
-
-    @Column(name = "booking_code", length = 20, nullable = false)
+@Table(name = "dat_phong")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class DatPhong extends BaseEntity {
+    @Column(name = "booking_code", nullable = false, length = 20, unique = true)
     private String bookingCode;
 
+    /** NULL = đặt tại quầy cho khách vãng lai. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nguoi_dung_id", foreignKey = @ForeignKey(name = "fk_dp_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
 
-    @Column(name = "contact_name", length = 150, nullable = false)
+    @Column(name = "contact_name", nullable = false, length = 150)
     private String contactName;
 
     @Column(name = "contact_email", length = 190)
@@ -64,7 +48,7 @@ public class DatPhong extends AuditableEntity {
     private Integer numChildren = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private BookingStatus status = BookingStatus.PENDING;
 
@@ -86,12 +70,20 @@ public class DatPhong extends AuditableEntity {
     private BigDecimal refundAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", foreignKey = @ForeignKey(name = "fk_dp_created_by"))
+    @JoinColumn(name = "created_by")
     private NguoiDung createdBy;
 
-    @OneToMany(mappedBy = "datPhong", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "datPhong", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ChiTietDatPhong> chiTiets = new ArrayList<>();
+    private List<ChiTietDatPhong> details = new ArrayList<>();
 
     @OneToOne(mappedBy = "datPhong", fetch = FetchType.LAZY)
     private SoKhach soKhach;

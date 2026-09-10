@@ -3,34 +3,40 @@ package com.dev.backend.mapper;
 import com.dev.backend.dto.request.RegisterRequest;
 import com.dev.backend.dto.response.NguoiDungResponse;
 import com.dev.backend.entity.NguoiDung;
-import com.dev.backend.entity.NguoiDungVaiTro;
+import com.dev.backend.entity.VaiTro;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.Set;
 
-/**
- * unmappedTargetPolicy = IGNORE de khoi phai liet ke @Mapping(ignore) cho
- * hang chuc truong ky thuat cua entity (status, createdAt, cac quan he...).
- */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface NguoiDungMapper {
 
-    @Mapping(source = "vaiTros", target = "roles", qualifiedByName = "mapRoles")
+    // Entity -> Response. roles là Set<VaiTro> nhưng response cần List<String>
+    // nên MapStruct sẽ tự gọi hàm rolesToCodes() bên dưới
+    @Mapping(source = "roles", target = "roles")
     NguoiDungResponse toResponse(NguoiDung nguoiDung);
 
-    /** Chi map email, fullName, phone. passwordHash va status do service tu set. */
+    // Request -> Entity. Các trường không có trong request hoặc phải tự set
+    // trong service (password, status, roles) thì ignore
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "hoSoKhach", ignore = true)
+    @Mapping(target = "emailVerifiedAt", ignore = true)
+    @Mapping(target = "verificationToken", ignore = true)
+    @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "anonymizedAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     NguoiDung toEntity(RegisterRequest request);
 
-    @Named("mapRoles")
-    default List<String> mapRoles(List<NguoiDungVaiTro> vaiTros) {
-        if (vaiTros == null) {
-            return List.of();
-        }
-        return vaiTros.stream()
-                .map(ndvt -> ndvt.getVaiTro().getCode())
-                .toList();
+    // Hàm phụ: MapStruct tự dùng khi cần đổi Set<VaiTro> -> List<String>
+    default List<String> rolesToCodes(Set<VaiTro> roles) {
+        if (roles == null) return List.of();
+        return roles.stream().map(VaiTro::getCode).toList();
     }
 }

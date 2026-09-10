@@ -1,37 +1,21 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.Gender;
+import com.dev.backend.constant.enums.IdType;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
 
 @Entity
-@Table(name = "ho_so_khach",
-        uniqueConstraints = @UniqueConstraint(name = "uq_ho_so_khach_nguoi_dung", columnNames = "nguoi_dung_id"),
-        indexes = @Index(name = "ix_ho_so_khach_id_hash", columnList = "id_number_hash"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class HoSoKhach extends AuditableEntity {
-
+@Table(name = "ho_so_khach")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class HoSoKhach extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "nguoi_dung_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_hsk_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id", nullable = false, unique = true)
     private NguoiDung nguoiDung;
 
     @Enumerated(EnumType.STRING)
@@ -39,6 +23,7 @@ public class HoSoKhach extends AuditableEntity {
     @Builder.Default
     private IdType idType = IdType.CCCD;
 
+    /** Mã hóa AES phía ứng dụng. */
     @Column(name = "id_number_encrypted", columnDefinition = "VARBINARY(512)")
     private byte[] idNumberEncrypted;
 
@@ -55,10 +40,10 @@ public class HoSoKhach extends AuditableEntity {
     private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 10)
+    @Column(length = 10)
     private Gender gender;
 
-    @Column(name = "nationality", length = 80)
+    @Column(length = 80)
     private String nationality;
 
     @Column(name = "permanent_address", length = 255)
@@ -66,4 +51,12 @@ public class HoSoKhach extends AuditableEntity {
 
     @Column(name = "id_document_image_url", length = 500)
     private String idDocumentImageUrl;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

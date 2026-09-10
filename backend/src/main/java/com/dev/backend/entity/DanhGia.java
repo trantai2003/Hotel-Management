@@ -1,53 +1,32 @@
 package com.dev.backend.entity;
 
-import com.dev.backend.constant.enums.*;
+import com.dev.backend.constant.enums.ReviewTargetType;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.generator.EventType;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
 
 @Entity
-@Table(name = "danh_gia",
-        uniqueConstraints = @UniqueConstraint(name = "uq_danh_gia_target",
-                columnNames = {"nguoi_dung_id", "target_type", "target_id"}),
-        indexes = @Index(name = "ix_danh_gia_target", columnList = "target_type, target_id, is_visible"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Table(name = "danh_gia")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DanhGia extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "nguoi_dung_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_dg_nguoi_dung"))
+    @JoinColumn(name = "nguoi_dung_id", nullable = false)
     private NguoiDung nguoiDung;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false, length = 20)
     private ReviewTargetType targetType;
 
-    /** Da hinh: dat_phong.id | dat_tour.id | don_mon.id — khong co khoa ngoai. */
-    @Column(name = "target_id", length = 36, nullable = false)
+    /** Đa hình: dat_phong.id | dat_tour.id | don_mon.id — không map FK. */
+    @Column(name = "target_id", nullable = false, length = 36)
     private String targetId;
 
-    @Column(name = "rating", nullable = false)
+    @Column(nullable = false)
     private Integer rating;
 
-    @Lob
-    @Column(name = "comment", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
     @Column(name = "is_visible", nullable = false)
@@ -55,13 +34,13 @@ public class DanhGia extends BaseEntity {
     private Boolean isVisible = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "moderated_by", foreignKey = @ForeignKey(name = "fk_dg_moderated_by"))
+    @JoinColumn(name = "moderated_by")
     private NguoiDung moderatedBy;
 
     @Column(name = "moderated_at")
     private LocalDateTime moderatedAt;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }
